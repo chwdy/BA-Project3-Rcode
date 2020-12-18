@@ -1,0 +1,299 @@
+---
+title: "amazon"
+author: "dz1397"
+date: "12/2/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,cache = T)
+```
+
+
+```{r}
+library(quanteda)
+library(tidyr)
+library(tidytext)
+library(wordcloud)
+library(tm)
+```
+
+
+
+# PART 1: Exploratory Data Analysis & Text Analytics
+
+```{r}
+original_data <- read.csv("USvideos.csv")
+```
+
+## 1. How many complaints have been generated?
+
+```{r}
+data<-original_data
+dim(data)
+colnames(data)
+if(1){
+  temp<-list("category_id","views","likes","dislikes","comment_count","comments_disabled","ratings_disabled","video_error_or_removed")
+
+  for ( i in temp){
+  print(paste("========",i,"========="))
+  if(is.character(data[[i]])){
+ print(table(data[[i]]))
+  }else
+  {
+    print(summary(data[[i]]))
+  }
+  }
+}
+
+
+```
+
+## data processing
+
+```{r}
+#formatting
+data$trending_date<-as.Date(data$trending_date, "%y.%d.%m")
+data$publish_time<-as.Date(data$publish_time)
+data[,"thumbnail_link"]<-NULL
+data<-subset(data,!(data$video_id=="kZete48ZtsY"&data$video_error_or_removed=="True"))
+
+#aggregate
+data1<-aggregate(data[,c("video_id")],
+                 by=list(data$video_id,data$title,data$channel_title,data$category_id,data$publish_time,data$tags,data$comments_disabled,data$ratings_disabled,data$video_error_or_removed,data$description,data$channel_title),
+                 FUN = length)
+colnames(data1)<-c("video_id","title","channel_title","category_id","publish_time","tags","comments_disabled","ratings_disabled","video_error_or_removed","description","channel_title","count")
+data10<-aggregate(data$video_id,by=list(data$video_id),length)
+colnames(data10)<-c("video_id","trending_count")
+
+process_list<- list("description","tags","title")
+for(i in 1:nrow(data10)){
+  ifelse(i%%1000==0,print(paste(i," ",round(i/nrow(data10)*100,2),"%")),0)
+  temp<-subset(data,data$video_id==data10[i,"video_id"])
+  temp<-temp[order(temp$trending_date,decreasing = T),]
+  data10[i,"first_trending"]<-min(temp$trending_date)
+  data10[i,"last_trending"]<-max(temp$trending_date)
+  
+  data10[i,"title"]<-temp[1,"title"]
+  data10[i,"title_change_count"]<-length(unique(temp$title))
+  
+  data10[i,"tags"]<-temp[1,"tags"]
+  data10[i,"tag_change_count"]<-length(unique(temp$tags))
+  
+  data10[i,"description"]<-temp[1,"description"]
+  data10[i,"des_change_count"]<-length(unique(temp$description))
+  
+  data10[i,"category_id"]<-temp[1,"category_id"]
+  data10[i,"cat_change_count"]<-length(unique(temp$category_id))
+  
+  data10[i,"channel_title"]<-temp[1,"channel_title"]
+  data10[i,"chn_change_count"]<-length(unique(temp$channel_title))
+  
+  data10[i,"publish_time"]<-min(temp$publish_time)
+  
+  data10[i,"views"]<-temp[1,"views"]
+  data10[i,"max_view"]<-max(temp$views)
+  data10[i,"min_view"]<-min(temp$views)
+  
+  data10[i,"likes"]<-temp[1,"likes"]
+  data10[i,"max_likes"]<-max(temp$likes)
+  data10[i,"min_likes"]<-min(temp$likes)
+  
+  data10[i,"dislikes"]<-temp[1,"dislikes"]
+  data10[i,"max_dislikes"]<-max(temp$dislikes)
+  data10[i,"min_dislikes"]<-min(temp$dislikes)
+  
+  data10[i,"comment_count"]<-temp[1,"comment_count"]
+  data10[i,"max_comments"]<-max(temp$comment_count)
+  data10[i,"min_comments"]<-min(temp$comment_count)
+  
+  data10[i,"comments_disabled"]<-temp[1,"comments_disabled"]
+  data10[i,"ratings_disabled"]<-temp[1,"ratings_disabled"]
+  data10[i,"video_error_or_removed"]<-temp[1,"video_error_or_removed"]
+  
+  
+}
+library(tidyverse)
+data10$description<-str_replace_all(data10$description,"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+","EXTERNALURL ")
+data10$description<-str_replace_all(data10$description,"(\\\\r\\n|\\\\r|\\\\n)"," ")
+data10$des_url_count<-lapply(data10$description,function(x){length(str_extract_all(x,"EXTERNALURL")[[1]])})
+data10$description<-str_replace_all(data10$description,"EXTERNALURL"," ")
+for (j in process_list){
+    data10[[paste(j,"P")]] <- gsub("'", "", data10[[j]]) # remove apostrophes
+    data10[[paste(j,"P")]] <- gsub("[[:punct:]]", " ", data10[[j]])  # replace punctuation with space
+    data10[[paste(j,"P")]] <- gsub("[[:cntrl:]]", " ", data10[[j]])  # replace control characters with space
+    data10[[paste(j,"P")]] <- gsub("^[[:space:]]+", "", data10[[j]]) # remove whitespace at beginning of documents
+    data10[[paste(j,"P")]] <- gsub("[[:space:]]+$", "", data10[[j]]) # remove whitespace at end of documents
+    data10[[paste(j,"P")]] <- gsub("[^a-zA-Z -]", " ", data10[[j]]) # allows only letters
+    data10[[paste(j,"P")]] <- tolower(data10[[j]]) 
+  }
+data10$trending_span = as.numeric(data10$last_trending-data10$first_trending)
+data10$day_until_trending = as.numeric(data10$first_trending-data10$publish_time)
+data10$like_rate=round(data10$likes/(data10$likes+data10$dislikes)*100,2)
+data10$like_engage_rate=round((data10$likes+data10$dislikes)/data10$views*100,2)
+data10$comment_engage_rate=round(data10$comment_count/data10$views*100,2)
+```
+
+
+
+```{r}
+colnames(data10)
+```
+
+
+
+
+```{r date distribute} 
+temp <- data10$first_trending
+temp<-data.frame(temp)
+temp$pub <-data10$publish_time
+temp$diff<-data10$day_until_trending
+temp$PUByearmonth<-format(temp$pub,"%Y-%m")
+temp$TRDyearmonth<-format(temp$temp,"%Y-%m")
+library(ggplot2)
+ggplot(data = temp[temp$PUByearmonth<"2017-10",],mapping = aes(x=PUByearmonth))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (before 2017-10)")
+ggplot(data = temp[temp$PUByearmonth>="2017-10",],mapping = aes(x=PUByearmonth))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (after 2017-10)(included)")
+ggplot(data = temp,mapping = aes(x=TRDyearmonth))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first trending date")
+ggplot(data = data10,mapping = aes(x=trending_count))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many times on trending")
+ggplot(data = data10,mapping = aes(x=trending_span))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days between first and last trending")
+```
+
+
+
+
+```{r word cloud}
+
+newscorpus_des<- corpus(data10$`description P`,
+                    docnames=data10$video_id,
+                    docvar=data.frame(pos=data10$publish_time,
+                                      date=data10$first_trending,
+                                      loc = data10$views))
+
+newscorpus_tag<- corpus(data10$`tags P`,
+                    docnames=data10$video_id,
+                    docvar=data.frame(pos=data10$publish_time,
+                                      date=data10$first_trending,
+                                      loc = data10$views))
+
+newscorpus_title<- corpus(data10$`title P`,
+                    docnames=data10$video_id,
+                    docvar=data.frame(pos=data10$publish_time,
+                                      date=data10$first_trending,
+                                      loc = data10$views))
+
+
+
+```
+
+
+
+```{r}
+newscorpus<-newscorpus_des
+
+dfm.simple<- dfm(newscorpus, 
+               remove = c(stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.simple, n=50)
+
+swlist = c(",", ":",".", "â", "€","-","!","™","¢",")","(","/","_","\"","s","?","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","ð","ðÿ","¶","¡","linebreak","„","âž","°")
+dfm.stem<- dfm(newscorpus, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.stem, n=50)
+
+
+set.seed(142)   #keeps cloud' shape fixed
+freq<-topfeatures(dfm.stem, n=500)
+
+wordcloud(names(freq), 
+          freq, max.words=120, 
+          scale=c(3, .3), 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+```{r}
+newscorpus<-newscorpus_tag
+
+dfm.simple<- dfm(newscorpus, 
+               remove = c(stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.simple, n=50)
+
+swlist = c("‚", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","s","?","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","¥","=","¶","¡","linebreak","„","âž","°")
+dfm.stem<- dfm(newscorpus, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.stem, n=50)
+
+
+set.seed(142)   #keeps cloud' shape fixed
+freq<-topfeatures(dfm.stem, n=500)
+
+wordcloud(names(freq), 
+          freq, max.words=120, 
+          scale=c(3, .3), 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+```{r}
+newscorpus<-newscorpus_title
+
+dfm.simple<- dfm(newscorpus, 
+               remove = c(stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.simple, n=50)
+
+swlist = c(",", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","ë","?","º","\'","|","&","[","]","ì","ðÿ","™","˜","¸","+","¥","=","¶","¡","â","„","©","$")
+dfm.stem<- dfm(newscorpus, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.stem, n=50)
+
+
+set.seed(142)   #keeps cloud' shape fixed
+freq<-topfeatures(dfm.stem, n=500)
+
+wordcloud(names(freq), 
+          freq, max.words=120, 
+          scale=c(3, .3), 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+
+```{r youtuber}
+temp <- data$channel_title
+temp <-data.frame(temp)
+temp<-aggregate(temp$temp,by=list(temp$temp),FUN = length)
+temp1<-temp[order(-temp$x,decreasing = F),]
+temp2 <-temp1[1:30,]
+colnames(temp2)<-list("channel","count")
+ggplot(data = temp2,mapping = aes(x=reorder(channel,-count),y=count))+geom_bar(stat = "identity")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("channnel")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
