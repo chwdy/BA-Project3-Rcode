@@ -134,6 +134,13 @@ data10$day_until_trending = as.numeric(data10$first_trending-data10$publish_time
 data10$like_rate=round(data10$likes/(data10$likes+data10$dislikes)*100,2)
 data10$like_engage_rate=round((data10$likes+data10$dislikes)/data10$views*100,2)
 data10$comment_engage_rate=round(data10$comment_count/data10$views*100,2)
+
+cat_dict<-c("Film & Animation","Autos & Vehicles","Music","Pets & Animals","Sports","Short Movies","Travel & Events","Gaming","Videoblogging","People & Blogs","Comedy","Entertainment","News & Politics","Howto & Style","Education","Science & Technology","Nonprofits & Activism","Movies","Anime/Animation","Action/Adventure","Classics","Comedy","Documentary","Drama","Family","Foreign","Horror","Sci-Fi/Fantasy","Thriller","Shorts","Shows","Trailers")
+names(cat_dict)<-c(1,2,10,15,17:44)
+
+data10$category_name<-unlist(lapply(data10$category_id,function(x){
+  return(cat_dict[[toString(x)]])
+}))
 ```
 
 
@@ -153,11 +160,11 @@ temp$diff<-data10$day_until_trending
 temp$PUByearmonth<-format(temp$pub,"%Y-%m")
 temp$TRDyearmonth<-format(temp$temp,"%Y-%m")
 library(ggplot2)
-ggplot(data = temp[temp$PUByearmonth<"2017-10",],mapping = aes(x=PUByearmonth))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (before 2017-10)")
-ggplot(data = temp[temp$PUByearmonth>="2017-10",],mapping = aes(x=PUByearmonth))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (after 2017-10)(included)")
-ggplot(data = temp,mapping = aes(x=TRDyearmonth))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first trending date")
-ggplot(data = data10,mapping = aes(x=trending_count))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many times on trending")
-ggplot(data = data10,mapping = aes(x=trending_span))+geom_histogram(stat="count")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days between first and last trending")
+ggplot(data = temp[temp$PUByearmonth<"2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (before 2017-10)")
+ggplot(data = temp[temp$PUByearmonth>="2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (after 2017-10)(included)")
+ggplot(data = temp,mapping = aes(x=TRDyearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first trending date")
+ggplot(data = data10,mapping = aes(x=trending_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many times on trending")
+ggplot(data = data10,mapping = aes(x=trending_span))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days between first and last trending")
 ```
 
 
@@ -206,11 +213,11 @@ dfm.stem<- dfm(newscorpus,
 topfeatures(dfm.stem, n=50)
 
 
-set.seed(142)   #keeps cloud' shape fixed
+set.seed(333)   #keeps cloud' shape fixed
 freq<-topfeatures(dfm.stem, n=500)
 
 wordcloud(names(freq), 
-          freq, max.words=120, 
+          freq, max.words=100, 
           scale=c(3, .3), 
           colors=brewer.pal(8, "Dark2"))
 ```
@@ -264,10 +271,18 @@ set.seed(142)   #keeps cloud' shape fixed
 freq<-topfeatures(dfm.stem, n=500)
 
 wordcloud(names(freq), 
-          freq, max.words=120, 
+          freq, max.words=200, 
           scale=c(3, .3), 
           colors=brewer.pal(8, "Dark2"))
 ```
+
+```{r cat distribute}
+
+ggplot(data = data10,aes(category_name))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+
+```
+
+
 
 
 
