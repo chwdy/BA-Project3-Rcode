@@ -118,7 +118,7 @@ for(i in 1:nrow(data10)){
 library(tidyverse)
 data10$description<-str_replace_all(data10$description,"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+","EXTERNALURL ")
 data10$description<-str_replace_all(data10$description,"(\\\\r\\n|\\\\r|\\\\n)"," ")
-data10$des_url_count<-lapply(data10$description,function(x){length(str_extract_all(x,"EXTERNALURL")[[1]])})
+data10$des_url_count<-unlist(lapply(data10$description,function(x){length(str_extract_all(x,"EXTERNALURL")[[1]])}))
 data10$description<-str_replace_all(data10$description,"EXTERNALURL"," ")
 for (j in process_list){
     data10[[paste(j,"P")]] <- gsub("'", "", data10[[j]]) # remove apostrophes
@@ -283,17 +283,84 @@ ggplot(data = data10,aes(category_name))+geom_bar()+ theme(axis.text.x = element
 ```
 
 
+```{r number hist}
+#continuos use histogram
+#cat without y use bar
+#cat with y use col
+ggplot(data = data10,aes(trending_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(title_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(tag_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(des_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(cat_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(chn_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(views))+geom_histogram(bins=10)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$views<=15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$views>15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$likes<=100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$likes>100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$dislikes<=100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$dislikes>100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$comment_count<=100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$comment_count>100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(comments_disabled))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(ratings_disabled))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(video_error_or_removed))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(des_url_count))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(trending_span))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+
+ggplot(data = data10,aes(log2(day_until_trending)))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$day_until_trending<=100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10[data10$day_until_trending>100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+
+ggplot(data = data10,aes(like_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(like_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(comment_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+
+```
 
 
 
 ```{r youtuber}
-temp <- data$channel_title
-temp <-data.frame(temp)
-temp<-aggregate(temp$temp,by=list(temp$temp),FUN = length)
-temp1<-temp[order(-temp$x,decreasing = F),]
-temp2 <-temp1[1:30,]
-colnames(temp2)<-list("channel","count")
-ggplot(data = temp2,mapping = aes(x=reorder(channel,-count),y=count))+geom_bar(stat = "identity")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("channnel")
+#youtuberAG_list<-c("channel_title","min_view","min_likes","min_dislikes","min_comments")
+temp_avg<-c("trending_count","title_change_count","tag_change_count","des_change_count","cat_change_count","views","likes","dislikes","comment_count","des_url_count","trending_span","day_until_trending","like_rate","like_engage_rate","comment_engage_rate")
+temp_max<-c("max_view","max_likes","max_dislikes","max_comments","trending_span")
+temp_sum<-c("views","comment_count","likes")
+temp_top<-c("tags","category_name")
+
+data20<- aggregate(data10$video_id,by=list(data10$channel_title),FUN=length)
+colnames(data20)<-c("channel","trend_video_count") 
+swlist = c("‚", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","ìš","˜","¸","+","¥","=","¶","¡","¬","„","ãƒ","°","ã")
+for(i in 1:nrow(data20)){
+#i=2
+  ifelse(i%%100==0,print(paste(i," ",round(i/nrow(data20)*100,2),"%")),0)
+  
+  temp<-subset(data10,data10$channel_title==data20[i,"channel"])
+  #temp<-temp[order(temp$trending_date,decreasing = T),]
+  for(j in temp_avg){
+    data20[i,paste("avg_",j,sep = "")]<-mean(temp[[j]])
+  }
+  
+  for(j in temp_max){
+    data20[i,paste("max_",j,sep = "")]<-max(temp[[j]])
+  }
+  for(j in temp_sum){
+    data20[i,paste("sum_",j,sep = "")]<-sum(temp[[j]])
+  }
+  
+  newscorpus_temp<- corpus(temp$`tags P`,docnames=temp$video_id)
+  dfm.stem<- dfm(newscorpus_temp, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F,stem=F)
+  
+  temp_list<-topfeatures(dfm.stem, n=2)
+  data20[i,"top_tag"]<-ifelse(temp_list[1]>=1,names(temp_list[1]),NA)
+  data20[i,"second_tag"]<-ifelse(length(temp_list>1)&temp_list[2]>=1,names(temp_list[2]),NA)
+  temp_list<-table(temp$category_name)
+  data20[i,"top_cat"]<-names(temp_list[1])
+  data20[i,"second_cat"]<-ifelse(length(temp_list>1),names(temp_list[2]),NA)
+}
+
+#only 101 have trending in more than 1 cat
 
 ```
 
