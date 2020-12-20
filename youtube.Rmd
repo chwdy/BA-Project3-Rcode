@@ -287,34 +287,34 @@ ggplot(data = data10,aes(category_name))+geom_bar()+ theme(axis.text.x = element
 #continuos use histogram
 #cat without y use bar
 #cat with y use col
-ggplot(data = data10,aes(trending_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(title_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(tag_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(des_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(cat_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(chn_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(views))+geom_histogram(bins=10)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$views<=15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$views>15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$likes<=100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$likes>100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$dislikes<=100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$dislikes>100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$comment_count<=100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$comment_count>100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(comments_disabled))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(ratings_disabled))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(video_error_or_removed))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(des_url_count))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(trending_span))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(trending_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many days a video is trending")
+ggplot(data = data10,aes(title_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed titles")
+ggplot(data = data10,aes(tag_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed tags")
+ggplot(data = data10,aes(des_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed description")
+ggplot(data = data10,aes(cat_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed category")
+ggplot(data = data10,aes(chn_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video's owner change vhannel title")
+ggplot(data = data10,aes(views))+geom_histogram(bins=10)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("views distribution")
+ggplot(data = data10[data10$views<=15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("views distribution <=15000000")
+ggplot(data = data10[data10$views>15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("views distribution >15000000")
+ggplot(data = data10[data10$likes<=100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("likes distribution <=100000")
+ggplot(data = data10[data10$likes>100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("likes distribution >100000")
+ggplot(data = data10[data10$dislikes<=100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("dislikes distribution <=100000")
+ggplot(data = data10[data10$dislikes>100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("dislikes distribution >100000")
+ggplot(data = data10[data10$comment_count<=100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("comment_count distribution <=100000")
+ggplot(data = data10[data10$comment_count>100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("comment_count distribution >100000")
+ggplot(data = data10,aes(comments_disabled))+geom_bar()+ggtitle("is the video disabled comments")
+ggplot(data = data10,aes(ratings_disabled))+geom_bar()+ggtitle("is the video disabled ratings")
+ggplot(data = data10,aes(video_error_or_removed))+geom_bar()+ ggtitle("is the video disabled removed")
+ggplot(data = data10,aes(des_url_count))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many external links in the description")
+ggplot(data = data10,aes(trending_span))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days between first and last day trending")
 
-ggplot(data = data10,aes(log2(day_until_trending)))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$day_until_trending<=100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10[data10$day_until_trending>100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(log2(day_until_trending)))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending log2")
+ggplot(data = data10[data10$day_until_trending<=100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending <=100")
+ggplot(data = data10[data10$day_until_trending>100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending >100")
 
-ggplot(data = data10,aes(like_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(like_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-ggplot(data = data10,aes(comment_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(like_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("video like rate distribution")
+ggplot(data = data10,aes(like_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of like interaction distribution")
+ggplot(data = data10,aes(comment_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of comments interaction distribution")
 
 ```
 
@@ -365,6 +365,14 @@ for(i in 1:nrow(data20)){
 ```
 
 
+```{r}
+library(corrplot)
+## corrplot 0.84 loaded
+M <- cor(data10[, c(2,16,17,18,19,20,21,22,23,24,25,26,27,35,36,37,38,39)])
+corrplot(M, method = "circle")
+write.csv(data10,"data10.csv")
+write.csv(data20,"data20.csv")
+```
 
 
 
