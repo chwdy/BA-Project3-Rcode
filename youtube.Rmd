@@ -3,8 +3,8 @@ title: "amazon"
 author: "dz1397"
 date: "12/2/2020"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -329,7 +329,8 @@ temp_top<-c("tags","category_name")
 
 data20<- aggregate(data10$video_id,by=list(data10$channel_title),FUN=length)
 colnames(data20)<-c("channel","trend_video_count") 
-swlist = c("‚", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","ìš","˜","¸","+","¥","=","¶","¡","¬","„","ãƒ","°","ã")
+swlist = c("‚", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","ìš","˜","¸","+","¥","=","¶","¡","¬","„","ãƒ","°","ã",
+"[","ð","´")
 for(i in 1:nrow(data20)){
 #i=2
   ifelse(i%%100==0,print(paste(i," ",round(i/nrow(data20)*100,2),"%")),0)
@@ -364,15 +365,93 @@ for(i in 1:nrow(data20)){
 
 ```
 
-
 ```{r}
-library(corrplot)
-## corrplot 0.84 loaded
-M <- cor(data10[, c(2,16,17,18,19,20,21,22,23,24,25,26,27,35,36,37,38,39)])
-corrplot(M, method = "circle")
-write.csv(data10,"data10.csv")
-write.csv(data20,"data20.csv")
+colnames(data20)
 ```
+
+
+```{r youtuber plot}
+temp<-data20[order(-data20$trend_video_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-trend_video_count),y=trend_video_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many times its video is trending")
+
+temp<-data20[order(-data20$avg_trending_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_trending_count),y=avg_trending_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days its trending video will stay trending(average)")
+
+temp<-data20[order(-data20$avg_title_change_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_title_change_count),y=avg_title_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video title")
+
+temp<-data20[order(-data20$avg_tag_change_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_tag_change_count),y=avg_tag_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video tag")
+
+temp<-data20[order(-data20$avg_des_change_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_des_change_count),y=avg_des_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video description")
+
+temp<-data20[order(-data20$avg_cat_change_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_trending_count),y=avg_cat_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video category")
+
+temp<-data20[order(-data20$avg_views,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_views),y=avg_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many view will its trending video get")
+
+temp<-data20[order(-data20$avg_likes,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_views),y=avg_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many likes will its trending video get")
+
+temp<-data20[order(-data20$avg_dislikes,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_views),y=avg_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many dislikes will its trending video get")
+
+temp<-data20[order(-data20$avg_comment_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_comment_count),y=avg_comment_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many comments will its trending video get")
+
+temp<-data20[order(-data20$avg_des_url_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_des_url_count),y=avg_des_url_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many URL will its trending video have in the description")
+
+temp<-data20[order(-data20$avg_trending_span,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_trending_span),y=avg_trending_span))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many days will its trending video can last")
+
+temp<-data20[order(-data20$avg_day_until_trending,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_day_until_trending),y=avg_day_until_trending))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many days will its trending video need to become trending(average)")
+
+temp<-data20[order(-data20$avg_like_rate,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_like_rate),y=avg_like_rate))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many viewers likes its trending video (average)")
+
+temp<-data20[order(-data20$avg_like_engage_rate,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_like_engage_rate),y=avg_like_engage_rate))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many viewer will click its trending video's like / dislike")
+
+temp<-data20[order(-data20$avg_comment_engage_rate,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_comment_engage_rate),y=avg_comment_engage_rate))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many viewer will leave comments on its trending video")
+
+temp<-data20[order(-data20$max_max_view,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_view),y=max_max_view))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("channnel")
+
+temp<-data20[order(-data20$max_max_likes,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_likes),y=max_max_likes))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many likes this youtuber ever have on single trending video")
+
+temp<-data20[order(-data20$max_max_dislikes,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_dislikes),y=max_max_dislikes))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many dislikes this youtuber ever have on single trending video")
+
+temp<-data20[order(-data20$max_max_comments,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_comments),y=max_max_comments))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many comments this youtuber ever have on single trending video")
+
+temp<-data20[order(-data20$max_trending_span,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_trending_span),y=max_trending_span))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days its long lasting video stay trending")
+
+temp<-data20[order(-data20$sum_views,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-sum_views),y=sum_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many view this youtuber have for all its trending video")
+
+temp<-data20[order(-data20$sum_comment_count,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-sum_comment_count),y=sum_comment_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many comments this youtuber have for all its trending video")
+
+temp<-data20[order(-data20$sum_likes,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-sum_likes),y=sum_likes))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many likes this youtuber have for all its trending video")
+
+temp<-aggregate(data20$top_tag,by=list(data20$top_tag),FUN=length)
+temp<-temp[order(-temp$x,decreasing = F),]
+ggplot(data = temp[1:30,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ theme(axis.text.x = element_text(angle = 45, hjust = 1))+ggtitle("most common tags among youtubers")
+
+temp<-aggregate(data20$top_cat,by=list(data20$top_cat),FUN=length)
+temp<-temp[order(-temp$x,decreasing = F),]
+ggplot(data = temp[1:16,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ theme(axis.text.x = element_text(angle = 45, hjust = 1))+ggtitle("most common category among youtubers")
+```
+
 
 
 
