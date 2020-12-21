@@ -1,7 +1,7 @@
 ---
-title: "amazon"
-author: "dz1397"
-date: "12/2/2020"
+title: "Youtube Trending analysis"
+author: "Ullas Srivastava,Diwei Zhu,Valeriya Gorelova,Wandi Zhang"
+date: "12/8/2020"
 output:
   html_document: default
   pdf_document: default
@@ -12,12 +12,14 @@ knitr::opts_chunk$set(echo = TRUE,cache = T)
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(quanteda)
 library(tidyr)
 library(tidytext)
 library(wordcloud)
 library(tm)
+library(tidyverse)
+library(ggplot2)
 ```
 
 
@@ -115,7 +117,7 @@ for(i in 1:nrow(data10)){
   
   
 }
-library(tidyverse)
+
 data10$description<-str_replace_all(data10$description,"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+","EXTERNALURL ")
 data10$description<-str_replace_all(data10$description,"(\\\\r\\n|\\\\r|\\\\n)"," ")
 data10$des_url_count<-unlist(lapply(data10$description,function(x){length(str_extract_all(x,"EXTERNALURL")[[1]])}))
@@ -159,7 +161,7 @@ temp$pub <-data10$publish_time
 temp$diff<-data10$day_until_trending
 temp$PUByearmonth<-format(temp$pub,"%Y-%m")
 temp$TRDyearmonth<-format(temp$temp,"%Y-%m")
-library(ggplot2)
+
 ggplot(data = temp[temp$PUByearmonth<"2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (before 2017-10)")
 ggplot(data = temp[temp$PUByearmonth>="2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (after 2017-10)(included)")
 ggplot(data = temp,mapping = aes(x=TRDyearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first trending date")
@@ -454,6 +456,9 @@ ggplot(data = temp[1:16,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ 
 
 
 
+```{r engagement score}
+
+```
 
 
 
