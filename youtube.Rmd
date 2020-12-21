@@ -679,10 +679,72 @@ ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_comment_increment)
   geom_text(aes(label=round(max_comment_increment,0),hjust=ifelse(max_comment_increment<max(temp$max_comment_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_comment_increment,function(x){return(ifelse(x<max(temp[1:25,]$max_comment_increment)/1.5, "black","white"))})))
 ```
 
+```{r plotcloud function}
+plotcloud<-function(temp){
+  newscorpus_des<- corpus(temp$`description P`,docnames=temp$video_id)
+newscorpus_tag<- corpus(temp$`tags P`,docnames=temp$video_id)
+newscorpus_title<- corpus(temp$`title P`,docnames=temp$video_id)
+newscorpus<-newscorpus_title
+swlist = c(",", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","ë","?","º","\'","|","&","[","]","ì","ðÿ","™","˜","¸","+","¥","=","¶","¡","â","„","©","$")
+dfm.stem<- dfm(newscorpus, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.stem, n=50)
+
+set.seed(142)   #keeps cloud' shape fixed
+freq<-topfeatures(dfm.stem, n=500)
+wordcloud(names(freq), 
+          freq, max.words=200, 
+          scale=c(3, .3), 
+          colors=brewer.pal(8, "Dark2"),)
+
+
+newscorpus<-newscorpus_des
+swlist = c(",", ":",".", "â", "€","-","!","™","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","ð","ðÿ","¶","¡","linebreak","„","âž","°")
+dfm.stem<- dfm(newscorpus, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.stem, n=50)
+set.seed(333)   #keeps cloud' shape fixed
+freq<-topfeatures(dfm.stem, n=500)
+wordcloud(names(freq), 
+          freq, max.words=100, 
+          scale=c(3, .3), 
+          colors=brewer.pal(8, "Dark2"))
+
+
+newscorpus<-newscorpus_tag
+swlist = c("‚", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","¥","=","¶","¡","linebreak","„","âž","°")
+dfm.stem<- dfm(newscorpus, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F, 
+               stem=F)
+topfeatures(dfm.stem, n=50)
+set.seed(142)   #keeps cloud' shape fixed
+freq<-topfeatures(dfm.stem, n=500)
+wordcloud(names(freq), 
+          freq, max.words=120, 
+          scale=c(3, .3), 
+          colors=brewer.pal(8, "Dark2"))
+}
+
+```
+
+
+```{r top 20 youtuber statistics}
+avg_top20<-c("LuisFonsiVEVO","ChildishGambinoVEVO","Bruno Mars","David Dobrik","Logan Paul Vlogs","jbalvinVEVO","Dua Lipa","Maroon5VEVO","Ed Sheeran","TaylorSwiftVEVO","Cardi B","shakiraVEVO","joyner lucas","Collins Key","Today I Found Out","communitychannel","The Royal Family","Nikita Dragun","Desi Perkins","Tanner Braungardt")
+plotcloud(data10[data10$channel_title%in%avg_top20,])
+```
 
 
 
-
+```{r}
+max_top20<-c("ArianaGrandeVevo","SelenaGomezVEVO","ShawnMendesVEVO","NickyJamTV","GEazyMusicVEVO","Dude Perfect","Gorillaz","ImagineDragonsVEVO","Safiya Nygaard","Dani Ochoa","AsapSCIENCE","CamilaCabelloVEVO","Diplo","Clean Bandit",
+             "Lil Peep","LadyGagaVEVO","CaseyNeistat","MeghanTrainorVEVO","Lucas the Spider","Ryan Is Driving")
+plotcloud(data10[data10$channel_title%in%max_top20,])
+```
 
 
 
