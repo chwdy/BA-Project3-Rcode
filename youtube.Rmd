@@ -136,6 +136,8 @@ data10$day_until_trending = as.numeric(data10$first_trending-data10$publish_time
 data10$like_rate=round(data10$likes/(data10$likes+data10$dislikes)*100,2)
 data10$like_engage_rate=round((data10$likes+data10$dislikes)/data10$views*100,2)
 data10$comment_engage_rate=round(data10$comment_count/data10$views*100,2)
+data10$view_increment=ifelse(data10$trending_span>0,round((data10$max_likes-data10$min_likes)/data10$trending_span,2),0)
+data10$engagement_score<-50*data10$comment_count/25000 +20*(data10$likes+data10$dislikes)/500000-5*data10$day_until_trending+10*data10$view_increment/250 +5*data10$views/50000000
 
 cat_dict<-c("Film & Animation","Autos & Vehicles","Music","Pets & Animals","Sports","Short Movies","Travel & Events","Gaming","Videoblogging","People & Blogs","Comedy","Entertainment","News & Politics","Howto & Style","Education","Science & Technology","Nonprofits & Activism","Movies","Anime/Animation","Action/Adventure","Classics","Comedy","Documentary","Drama","Family","Foreign","Horror","Sci-Fi/Fantasy","Thriller","Shorts","Shows","Trailers")
 names(cat_dict)<-c(1,2,10,15,17:44)
@@ -207,7 +209,7 @@ dfm.simple<- dfm(newscorpus,
                stem=F)
 topfeatures(dfm.simple, n=50)
 
-swlist = c(",", ":",".", "â", "€","-","!","™","¢",")","(","/","_","\"","s","?","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","ð","ðÿ","¶","¡","linebreak","„","âž","°")
+swlist = c(",", ":",".", "â", "€","-","!","™","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","ð","ðÿ","¶","¡","linebreak","„","âž","°")
 dfm.stem<- dfm(newscorpus, 
                remove = c(swlist,stopwords("english")), 
                verbose=F, 
@@ -278,10 +280,30 @@ wordcloud(names(freq),
           colors=brewer.pal(8, "Dark2"))
 ```
 
-```{r cat distribute}
+```{r cat distribute&top tags}
 
 ggplot(data = data10,aes(category_name))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
-
+swlist = c("‚", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","¥","=","¶","¡","linebreak","„","âž","°","ð","ñ")
+data30<-data.frame(cat_dict)
+for(i in 1:nrow(data30)){
+#i=2
+  #ifelse(i%%100==0,print(paste(i," ",round(i/nrow(data20)*100,2),"%")),0)
+  
+  temp<-subset(data10,data10$category_name==data30[i,1])
+  if(nrow(temp)==0){
+    next
+  }
+  newscorpus_temp<- corpus(temp$`tags P`,docnames=temp$video_id)
+  dfm.stem<- dfm(newscorpus_temp, 
+               remove = c(swlist,stopwords("english")), 
+               verbose=F,stem=F)
+  temp_list<-topfeatures(dfm.stem, n=5)
+  data30[i,"top_tag"]<-ifelse(temp_list[1]>=1,names(temp_list[1]),NA)
+  data30[i,"second_tag"]<-ifelse(length(temp_list>1)&temp_list[2]>=1,names(temp_list[2]),NA)
+  data30[i,"third_tag"]<-ifelse(length(temp_list>2)&temp_list[3]>=1,names(temp_list[3]),NA)
+  data30[i,"fourth_tag"]<-ifelse(length(temp_list>3)&temp_list[4]>=1,names(temp_list[4]),NA)
+}
+data30[!is.na(data30$top_tag),]
 ```
 
 
@@ -318,14 +340,21 @@ ggplot(data = data10,aes(like_rate))+geom_histogram()+ theme(axis.text.x = eleme
 ggplot(data = data10,aes(like_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of like interaction distribution")
 ggplot(data = data10,aes(comment_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of comments interaction distribution")
 
+ggplot(data = data10[data10$view_increment<=1000,],aes(view_increment))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending <=100")
+ggplot(data = data10[data10$view_increment>1000,],aes(view_increment))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending >100")
+
+ggplot(data = data10,aes(engagement_score))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of comments interaction distribution")+xlim(-2000,10000)
+
+
+
 ```
 
 
 
 ```{r youtuber}
 #youtuberAG_list<-c("channel_title","min_view","min_likes","min_dislikes","min_comments")
-temp_avg<-c("trending_count","title_change_count","tag_change_count","des_change_count","cat_change_count","views","likes","dislikes","comment_count","des_url_count","trending_span","day_until_trending","like_rate","like_engage_rate","comment_engage_rate")
-temp_max<-c("max_view","max_likes","max_dislikes","max_comments","trending_span")
+temp_avg<-c("trending_count","title_change_count","tag_change_count","des_change_count","cat_change_count","views","likes","dislikes","comment_count","des_url_count","trending_span","day_until_trending","like_rate","like_engage_rate","comment_engage_rate","engagement_score","view_increment")
+temp_max<-c("max_view","max_likes","max_dislikes","max_comments","trending_span","engagement_score","view_increment")
 temp_sum<-c("views","comment_count","likes")
 temp_top<-c("tags","category_name")
 
@@ -452,14 +481,12 @@ ggplot(data = temp[1:30,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ 
 temp<-aggregate(data20$top_cat,by=list(data20$top_cat),FUN=length)
 temp<-temp[order(-temp$x,decreasing = F),]
 ggplot(data = temp[1:16,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ theme(axis.text.x = element_text(angle = 45, hjust = 1))+ggtitle("most common category among youtubers")
+
+temp<-data20[order(-data20$avg_engagement_score,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_engagement_score),y=avg_engagement_score))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("top youtubers with highest average engagement score")
+temp<-data20[order(-data20$max_engagement_score,decreasing = F),]
+ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_engagement_score),y=max_engagement_score))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("top youtubers with highest singel video engagement score")
 ```
-
-
-
-```{r engagement score}
-
-```
-
 
 
 
