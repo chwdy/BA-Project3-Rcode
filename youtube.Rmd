@@ -136,7 +136,10 @@ data10$day_until_trending = as.numeric(data10$first_trending-data10$publish_time
 data10$like_rate=round(data10$likes/(data10$likes+data10$dislikes)*100,2)
 data10$like_engage_rate=round((data10$likes+data10$dislikes)/data10$views*100,2)
 data10$comment_engage_rate=round(data10$comment_count/data10$views*100,2)
-data10$view_increment=ifelse(data10$trending_span>0,round((data10$max_likes-data10$min_likes)/data10$trending_span,2),0)
+data10$view_increment=ifelse(data10$trending_span>0,round((data10$max_view-data10$min_view)/data10$trending_span,2),0)
+data10$like_increment=ifelse(data10$trending_span>0,round((data10$max_likes-data10$min_likes)/data10$trending_span,2),0)
+data10$dislike_increment=ifelse(data10$trending_span>0,round((data10$max_dislikes-data10$min_dislikes)/data10$trending_span,2),0)
+data10$comment_increment=ifelse(data10$trending_span>0,round((data10$max_comments-data10$min_comments)/data10$trending_span,2),0)
 data10$engagement_score<-50*data10$comment_count/25000 +20*(data10$likes+data10$dislikes)/500000-5*data10$day_until_trending+10*data10$view_increment/250 +5*data10$views/50000000
 
 cat_dict<-c("Film & Animation","Autos & Vehicles","Music","Pets & Animals","Sports","Short Movies","Travel & Events","Gaming","Videoblogging","People & Blogs","Comedy","Entertainment","News & Politics","Howto & Style","Education","Science & Technology","Nonprofits & Activism","Movies","Anime/Animation","Action/Adventure","Classics","Comedy","Documentary","Drama","Family","Foreign","Horror","Sci-Fi/Fantasy","Thriller","Shorts","Shows","Trailers")
@@ -164,11 +167,20 @@ temp$diff<-data10$day_until_trending
 temp$PUByearmonth<-format(temp$pub,"%Y-%m")
 temp$TRDyearmonth<-format(temp$temp,"%Y-%m")
 
-ggplot(data = temp[temp$PUByearmonth<"2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (before 2017-10)")
-ggplot(data = temp[temp$PUByearmonth>="2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first publish date (after 2017-10)(included)")
-ggplot(data = temp,mapping = aes(x=TRDyearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("first trending date")
-ggplot(data = data10,mapping = aes(x=trending_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many times on trending")
-ggplot(data = data10,mapping = aes(x=trending_span))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days between first and last trending")
+ggplot(data = temp[temp$PUByearmonth<"2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ggtitle("first publish date (before 2017-10)")
+ggplot(data = temp[temp$PUByearmonth>="2017-10",],mapping = aes(x=PUByearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ggtitle("first publish date (after 2017-10)(included)")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = temp,mapping = aes(x=TRDyearmonth))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ggtitle("first trending date")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,mapping = aes(x=trending_count))+geom_bar()+
+  ggtitle("how many times on trending")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,mapping = aes(x=trending_span))+geom_bar()+
+  ggtitle("how many days between first and last trending")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 ```
 
 
@@ -282,7 +294,8 @@ wordcloud(names(freq),
 
 ```{r cat distribute&top tags}
 
-ggplot(data = data10,aes(category_name))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")
+ggplot(data = data10,aes(category_name))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("category distribution")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 swlist = c("‚", ":",".", "à", "€","-","!","¤","¢",")","(","/","_","\"","s","º","\'","|","&","»","ë","ì","t","can","˜","¸","+","¥","=","¶","¡","linebreak","„","âž","°","ð","ñ")
 data30<-data.frame(cat_dict)
 for(i in 1:nrow(data30)){
@@ -311,39 +324,120 @@ data30[!is.na(data30$top_tag),]
 #continuos use histogram
 #cat without y use bar
 #cat with y use col
-ggplot(data = data10,aes(trending_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many days a video is trending")
-ggplot(data = data10,aes(title_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed titles")
-ggplot(data = data10,aes(tag_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed tags")
-ggplot(data = data10,aes(des_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed description")
-ggplot(data = data10,aes(cat_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video changed category")
-ggplot(data = data10,aes(chn_change_count))+geom_bar()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("times a video's owner change vhannel title")
-ggplot(data = data10,aes(views))+geom_histogram(bins=10)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("views distribution")
-ggplot(data = data10[data10$views<=15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("views distribution <=15000000")
-ggplot(data = data10[data10$views>15000000,],aes(views))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("views distribution >15000000")
-ggplot(data = data10[data10$likes<=100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("likes distribution <=100000")
-ggplot(data = data10[data10$likes>100000,],aes(likes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("likes distribution >100000")
-ggplot(data = data10[data10$dislikes<=100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("dislikes distribution <=100000")
-ggplot(data = data10[data10$dislikes>100000,],aes(dislikes))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("dislikes distribution >100000")
-ggplot(data = data10[data10$comment_count<=100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("comment_count distribution <=100000")
-ggplot(data = data10[data10$comment_count>100000,],aes(comment_count))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("comment_count distribution >100000")
-ggplot(data = data10,aes(comments_disabled))+geom_bar()+ggtitle("is the video disabled comments")
-ggplot(data = data10,aes(ratings_disabled))+geom_bar()+ggtitle("is the video disabled ratings")
-ggplot(data = data10,aes(video_error_or_removed))+geom_bar()+ ggtitle("is the video disabled removed")
-ggplot(data = data10,aes(des_url_count))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many external links in the description")
-ggplot(data = data10,aes(trending_span))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days between first and last day trending")
+ggplot(data = data10,aes(trending_count))+geom_bar()+
+  ggtitle("How many days a video is trending")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(title_change_count))+geom_bar()+
+  ggtitle("times a video changed titles")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(tag_change_count))+geom_bar()+
+  ggtitle("times a video changed tags")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(des_change_count))+geom_bar()+
+  ggtitle("times a video changed description")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(cat_change_count))+geom_bar()+
+  ggtitle("times a video changed category")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(chn_change_count))+geom_bar()+
+  ggtitle("times a video's owner change vhannel title")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(views))+geom_histogram(bins=15)+
+  ggtitle("views distribution")+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$views<=15000000,],aes(views))+geom_histogram(bins=15)+
+  ggtitle("views distribution <=15000000")+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$views>15000000,],aes(views))+geom_histogram(bins=15)+
+  ggtitle("views distribution >15000000")+xlim(15000000,max(data10$views))+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$likes<=100000,],aes(likes))+geom_histogram(bins=15)+
+  ggtitle("likes distribution <=100000")+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$likes>100000,],aes(likes))+geom_histogram(bins=15)+
+  ggtitle("likes distribution >100000")+xlim(100000,max(data10$likes))+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$dislikes<=100000,],aes(dislikes))+geom_histogram(bins=15)+
+  ggtitle("dislikes distribution <=100000")+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$dislikes>100000,],aes(dislikes))+geom_histogram(bins=15)+
+  ggtitle("dislikes distribution >100000")+xlim(100000,max(data10$dislikes))+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$comment_count<=100000,],aes(comment_count))+geom_histogram(bins=15)+
+  ggtitle("comment_count distribution <=100000")+
+ 
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$comment_count>100000,],aes(comment_count))+geom_histogram(bins=15)+
+  ggtitle("comment_count distribution >100000")+xlim(100000,max(data10$comment_count))+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(comments_disabled))+geom_bar()+
+  ggtitle("is the video disabled comments")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(ratings_disabled))+geom_bar()+
+  ggtitle("is the video disabled ratings")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(video_error_or_removed))+geom_bar()+ 
+  ggtitle("is the video disabled removed")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(des_url_count))+geom_histogram()+
+  ggtitle("how many external links in the description")+
+  stat_bin( geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(trending_span))+geom_histogram()+
+  ggtitle("how many days between first and last day trending")+
+  stat_bin( geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(log2(day_until_trending)))+geom_histogram()+
+  ggtitle("how many days until trending log2")+
+  stat_bin( geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$day_until_trending<=100,],aes(day_until_trending))+geom_histogram(bins=15)+
+  ggtitle("how many days until trending <=100")+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$day_until_trending>100,],aes(day_until_trending))+geom_histogram(bins=15)+
+  ggtitle("how many days until trending >100")+ 
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
-ggplot(data = data10,aes(log2(day_until_trending)))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending log2")
-ggplot(data = data10[data10$day_until_trending<=100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending <=100")
-ggplot(data = data10[data10$day_until_trending>100,],aes(day_until_trending))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending >100")
+ggplot(data = data10,aes(like_rate))+geom_histogram()+
+  
+  ggtitle("video like rate distribution")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(like_engage_rate))+geom_histogram()+
+  ggtitle("percentage of like interaction distribution")+ 
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10,aes(comment_engage_rate))+geom_histogram()+
+  ggtitle("percentage of comments interaction distribution")+
+  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
-ggplot(data = data10,aes(like_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("video like rate distribution")
-ggplot(data = data10,aes(like_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of like interaction distribution")
-ggplot(data = data10,aes(comment_engage_rate))+geom_histogram()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of comments interaction distribution")
+ggplot(data = data10[data10$view_increment<=1000000,],aes(view_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(<=1000000)")+ 
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$view_increment>1000000,],aes(view_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(>1000000)")+xlim(1000000,max(data10$view_increment))+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
-ggplot(data = data10[data10$view_increment<=1000,],aes(view_increment))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending <=100")
-ggplot(data = data10[data10$view_increment>1000,],aes(view_increment))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days until trending >100")
+ggplot(data = data10[data10$like_increment<=3000,],aes(like_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(<=3000)")+ 
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$like_increment>3000,],aes(like_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(>3000)")+xlim(3000,max(data10$like_increment))+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
-ggplot(data = data10,aes(engagement_score))+geom_histogram(bins=15)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("percentage of comments interaction distribution")+xlim(-2000,10000)
+ggplot(data = data10[data10$dislike_increment<=1000,],aes(dislike_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(<=1000)")+ 
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$dislike_increment>1000,],aes(dislike_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(>1000)")+xlim(1000,max(data10$dislike_increment))+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+
+ggplot(data = data10[data10$comment_increment<=1000,],aes(comment_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(<=1000)")+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+ggplot(data = data10[data10$comment_increment>1000,],aes(comment_increment))+geom_histogram(bins=15)+
+  ggtitle("average view increment when trending(>1000)")+xlim(1000,max(data10$comment_increment))+ 
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+
+
+ggplot(data = data10,aes(engagement_score))+geom_histogram(bins=15)+
+  ggtitle("engagement score distribution")+
+  stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
 
 
@@ -353,8 +447,8 @@ ggplot(data = data10,aes(engagement_score))+geom_histogram(bins=15)+ theme(axis.
 
 ```{r youtuber}
 #youtuberAG_list<-c("channel_title","min_view","min_likes","min_dislikes","min_comments")
-temp_avg<-c("trending_count","title_change_count","tag_change_count","des_change_count","cat_change_count","views","likes","dislikes","comment_count","des_url_count","trending_span","day_until_trending","like_rate","like_engage_rate","comment_engage_rate","engagement_score","view_increment")
-temp_max<-c("max_view","max_likes","max_dislikes","max_comments","trending_span","engagement_score","view_increment")
+temp_avg<-c("trending_count","title_change_count","tag_change_count","des_change_count","cat_change_count","views","likes","dislikes","comment_count","des_url_count","trending_span","day_until_trending","like_rate","like_engage_rate","comment_engage_rate","engagement_score","view_increment","like_increment","dislike_increment","comment_increment")
+temp_max<-c("max_view","max_likes","max_dislikes","max_comments","trending_span","engagement_score","view_increment","like_increment","dislike_increment","comment_increment")
 temp_sum<-c("views","comment_count","likes")
 temp_top<-c("tags","category_name")
 
@@ -401,91 +495,188 @@ colnames(data20)
 ```
 
 
-```{r youtuber plot}
+```{r youtuber plot ,fig.width=8.5,fig.height=4}
 temp<-data20[order(-data20$trend_video_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-trend_video_count),y=trend_video_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many times its video is trending")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,trend_video_count),y=trend_video_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many times its video is trending")+
+  geom_text(aes(label=round(trend_video_count,0),hjust=ifelse(trend_video_count<max(temp$trend_video_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$trend_video_count,function(x){return(ifelse(x<max(temp[1:25,]$trend_video_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_trending_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_trending_count),y=avg_trending_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days its trending video will stay trending(average)")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_trending_count),y=avg_trending_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many days its trending video will stay trending(average)")+
+  geom_text(aes(label=round(avg_trending_count,0),hjust=ifelse(avg_trending_count<max(temp$avg_trending_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_trending_count,function(x){return(ifelse(x<max(temp[1:25,]$avg_trending_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_title_change_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_title_change_count),y=avg_title_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video title")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_title_change_count),y=avg_title_change_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many times the it changed it's trending video title")+
+  geom_text(aes(label=round(avg_title_change_count,0),hjust=ifelse(avg_title_change_count<max(temp$avg_title_change_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_title_change_count,function(x){return(ifelse(x<max(temp[1:25,]$avg_title_change_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_tag_change_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_tag_change_count),y=avg_tag_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video tag")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_tag_change_count),y=avg_tag_change_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many times the it changed it's trending video tag")+
+  geom_text(aes(label=round(avg_tag_change_count,2),hjust=ifelse(avg_tag_change_count<max(temp$avg_tag_change_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_tag_change_count,function(x){return(ifelse(x<max(temp[1:25,]$avg_tag_change_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_des_change_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_des_change_count),y=avg_des_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video description")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_des_change_count),y=avg_des_change_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many times the it changed it's trending video description")+
+  geom_text(aes(label=round(avg_des_change_count,2),hjust=ifelse(avg_des_change_count<max(temp$avg_des_change_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_des_change_count,function(x){return(ifelse(x<max(temp[1:25,]$avg_des_change_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_cat_change_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_trending_count),y=avg_cat_change_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many times the it changed it's trending video category")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_trending_count),y=avg_cat_change_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many times the it changed it's trending video category")+
+  geom_text(aes(label=round(avg_cat_change_count,2),hjust=ifelse(avg_cat_change_count<max(temp$avg_cat_change_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_cat_change_count,function(x){return(ifelse(x<max(temp[1:25,]$avg_cat_change_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_views,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_views),y=avg_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many view will its trending video get")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_views),y=avg_views))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many view will its trending video get")+
+  geom_text(aes(label=round(avg_views,0),hjust=ifelse(avg_views<max(temp$avg_views)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_views,function(x){return(ifelse(x<max(temp[1:25,]$avg_views)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_likes,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_views),y=avg_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many likes will its trending video get")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_views),y=avg_views))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many likes will its trending video get")+
+  geom_text(aes(label=round(avg_views,0),hjust=ifelse(avg_views<max(temp$avg_views)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_views,function(x){return(ifelse(x<max(temp[1:25,]$avg_views)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_dislikes,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_views),y=avg_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many dislikes will its trending video get")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_views),y=avg_views))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many dislikes will its trending video get")+
+  geom_text(aes(label=round(avg_views,0),hjust=ifelse(avg_views<max(temp$avg_views)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_views,function(x){return(ifelse(x<max(temp[1:25,]$avg_views)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_comment_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_comment_count),y=avg_comment_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many comments will its trending video get")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_comment_count),y=avg_comment_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many comments will its trending video get")+
+  geom_text(aes(label=round(avg_comment_count,0),hjust=ifelse(avg_comment_count<max(temp$avg_comment_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_comment_count,function(x){return(ifelse(x<max(temp[1:25,]$avg_comment_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_des_url_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_des_url_count),y=avg_des_url_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many URL will its trending video have in the description")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_des_url_count),y=avg_des_url_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many URL will its trending video have in the description")+
+  geom_text(aes(label=round(avg_des_url_count,0),hjust=ifelse(avg_des_url_count<max(temp$avg_des_url_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_des_url_count,function(x){return(ifelse(x<max(temp[1:25,]$avg_des_url_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_trending_span,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_trending_span),y=avg_trending_span))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many days will its trending video can last")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_trending_span),y=avg_trending_span))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many days will its trending video can last")+
+  geom_text(aes(label=round(avg_trending_span,0),hjust=ifelse(avg_trending_span<max(temp$avg_trending_span)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_trending_span,function(x){return(ifelse(x<max(temp[1:25,]$avg_trending_span)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_day_until_trending,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_day_until_trending),y=avg_day_until_trending))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many days will its trending video need to become trending(average)")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_day_until_trending),y=avg_day_until_trending))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many days will its trending video need to become trending(average)")+
+  geom_text(aes(label=round(avg_day_until_trending,0),hjust=ifelse(avg_day_until_trending<max(temp$avg_day_until_trending)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_day_until_trending,function(x){return(ifelse(x<max(temp[1:25,]$avg_day_until_trending)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_like_rate,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_like_rate),y=avg_like_rate))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many viewers likes its trending video (average)")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_like_rate),y=avg_like_rate))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many viewers likes its trending video (average)")+
+  geom_text(aes(label=round(avg_like_rate,0),hjust=ifelse(avg_like_rate<max(temp$avg_like_rate)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_like_rate,function(x){return(ifelse(x<max(temp[1:25,]$avg_like_rate)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_like_engage_rate,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_like_engage_rate),y=avg_like_engage_rate))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many viewer will click its trending video's like / dislike")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_like_engage_rate),y=avg_like_engage_rate))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many viewer will click its trending video's like / dislike")+
+  geom_text(aes(label=round(avg_like_engage_rate,2),hjust=ifelse(avg_like_engage_rate<max(temp$avg_like_engage_rate)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_like_engage_rate,function(x){return(ifelse(x<max(temp[1:25,]$avg_like_engage_rate)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$avg_comment_engage_rate,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_comment_engage_rate),y=avg_comment_engage_rate))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("How many viewer will leave comments on its trending video")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_comment_engage_rate),y=avg_comment_engage_rate))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("How many viewer will leave comments on its trending video")+
+  geom_text(aes(label=round(avg_comment_engage_rate,2),hjust=ifelse(avg_comment_engage_rate<max(temp$avg_comment_engage_rate)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_comment_engage_rate,function(x){return(ifelse(x<max(temp[1:25,]$avg_comment_engage_rate)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$max_max_view,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_view),y=max_max_view))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("channnel")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_max_view),y=max_max_view))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("channnel")+
+  geom_text(aes(label=round(max_max_view,0),hjust=ifelse(max_max_view<max(temp$max_max_view)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_max_view,function(x){return(ifelse(x<max(temp[1:25,]$max_max_view)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$max_max_likes,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_likes),y=max_max_likes))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many likes this youtuber ever have on single trending video")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_max_likes),y=max_max_likes))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many likes this youtuber ever have on single trending video")+
+  geom_text(aes(label=round(max_max_likes,0),hjust=ifelse(max_max_likes<max(temp$max_max_likes)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_max_likes,function(x){return(ifelse(x<max(temp[1:25,]$max_max_likes)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$max_max_dislikes,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_dislikes),y=max_max_dislikes))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many dislikes this youtuber ever have on single trending video")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_max_dislikes),y=max_max_dislikes))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many dislikes this youtuber ever have on single trending video")+
+  geom_text(aes(label=round(max_max_dislikes,0),hjust=ifelse(max_max_dislikes<max(temp$max_max_dislikes)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_max_dislikes,function(x){return(ifelse(x<max(temp[1:25,]$max_max_dislikes)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$max_max_comments,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_max_comments),y=max_max_comments))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many comments this youtuber ever have on single trending video")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_max_comments),y=max_max_comments))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many comments this youtuber ever have on single trending video")+
+  geom_text(aes(label=round(max_max_comments,0),hjust=ifelse(max_max_comments<max(temp$max_max_comments)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_max_comments,function(x){return(ifelse(x<max(temp[1:25,]$max_max_comments)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$max_trending_span,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_trending_span),y=max_trending_span))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many days its long lasting video stay trending")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_trending_span),y=max_trending_span))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many days its long lasting video stay trending")+
+  geom_text(aes(label=round(max_trending_span,0),hjust=ifelse(max_trending_span<max(temp$max_trending_span)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_trending_span,function(x){return(ifelse(x<max(temp[1:25,]$max_trending_span)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$sum_views,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-sum_views),y=sum_views))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many view this youtuber have for all its trending video")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,sum_views),y=sum_views))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many view this youtuber have for all its trending video")+
+  geom_text(aes(label=round(sum_views,0),hjust=ifelse(sum_views<max(temp$sum_views)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$sum_views,function(x){return(ifelse(x<max(temp[1:25,]$sum_views)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$sum_comment_count,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-sum_comment_count),y=sum_comment_count))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many comments this youtuber have for all its trending video")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,sum_comment_count),y=sum_comment_count))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many comments this youtuber have for all its trending video")+
+  geom_text(aes(label=round(sum_comment_count,0),hjust=ifelse(sum_comment_count<max(temp$sum_comment_count)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$sum_comment_count,function(x){return(ifelse(x<max(temp[1:25,]$sum_comment_count)/1.5, "black","white"))})))
 
 temp<-data20[order(-data20$sum_likes,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-sum_likes),y=sum_likes))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("how many likes this youtuber have for all its trending video")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,sum_likes),y=sum_likes))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("how many likes this youtuber have for all its trending video")+
+  geom_text(aes(label=round(sum_likes,0),hjust=ifelse(sum_likes<max(temp$sum_likes)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$sum_likes,function(x){return(ifelse(x<max(temp[1:25,]$sum_likes)/1.5, "black","white"))})))
 
 temp<-aggregate(data20$top_tag,by=list(data20$top_tag),FUN=length)
 temp<-temp[order(-temp$x,decreasing = F),]
-ggplot(data = temp[1:30,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ theme(axis.text.x = element_text(angle = 45, hjust = 1))+ggtitle("most common tags among youtubers")
+ggplot(data = temp[1:30,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  ggtitle("most common tags among youtubers")+
+  geom_text(geom = "text", colour = "black", size = 3.5,aes(label = x),vjust=-0.3)
 
 temp<-aggregate(data20$top_cat,by=list(data20$top_cat),FUN=length)
 temp<-temp[order(-temp$x,decreasing = F),]
-ggplot(data = temp[1:16,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ theme(axis.text.x = element_text(angle = 45, hjust = 1))+ggtitle("most common category among youtubers")
+ggplot(data = temp[1:16,],mapping = aes(x=reorder(Group.1,-x),y=x))+geom_col()+ theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  ggtitle("most common category among youtubers")+
+  geom_text(geom = "text", colour = "black", size = 3.5,aes(label = x),vjust=-0.3)
 
 temp<-data20[order(-data20$avg_engagement_score,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-avg_engagement_score),y=avg_engagement_score))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("top youtubers with highest average engagement score")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_engagement_score),y=avg_engagement_score))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest average engagement score")+
+  geom_text(aes(label=round(avg_engagement_score,0),hjust=ifelse(avg_engagement_score<max(temp$avg_engagement_score)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_engagement_score,function(x){return(ifelse(x<max(temp[1:25,]$avg_engagement_score)/1.5, "black","white"))})))
+
 temp<-data20[order(-data20$max_engagement_score,decreasing = F),]
-ggplot(data = temp[1:50,],mapping = aes(x=reorder(channel,-max_engagement_score),y=max_engagement_score))+geom_col()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+ggtitle("top youtubers with highest singel video engagement score")
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_engagement_score),y=max_engagement_score))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest singel video engagement score")+
+  geom_text(aes(label=round(max_engagement_score,0),hjust=ifelse(max_engagement_score<max(temp$max_engagement_score)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_engagement_score,function(x){return(ifelse(x<max(temp[1:25,]$max_engagement_score)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$avg_view_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_view_increment),y=avg_view_increment))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest average view increment when trending")+
+  geom_text(aes(label=round(avg_view_increment,0),hjust=ifelse(avg_view_increment<max(temp$avg_view_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_view_increment,function(x){return(ifelse(x<max(temp[1:25,]$avg_view_increment)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$max_view_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_view_increment),y=max_view_increment))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest singel video view increment")+
+  geom_text(aes(label=round(max_view_increment,0),hjust=ifelse(max_view_increment<max(temp$max_view_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_view_increment,function(x){return(ifelse(x<max(temp[1:25,]$max_view_increment)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$avg_like_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_like_increment),y=avg_like_increment))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest average like increment when trending")+
+  geom_text(aes(label=round(avg_like_increment,0),hjust=ifelse(avg_like_increment<max(temp$avg_like_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_like_increment,function(x){return(ifelse(x<max(temp[1:25,]$avg_like_increment)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$max_like_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_like_increment),y=max_like_increment))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest singel video like increment")+
+  geom_text(aes(label=round(max_like_increment,0),hjust=ifelse(max_like_increment<max(temp$max_like_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_like_increment,function(x){return(ifelse(x<max(temp[1:25,]$max_like_increment)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$avg_dislike_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_dislike_increment),y=avg_dislike_increment))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest average dislike increment when trending")+
+  geom_text(aes(label=round(avg_dislike_increment,0),hjust=ifelse(avg_dislike_increment<max(temp$avg_dislike_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_dislike_increment,function(x){return(ifelse(x<max(temp[1:25,]$avg_dislike_increment)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$max_dislike_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_dislike_increment),y=max_dislike_increment))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest singel video dislike increment")+
+  geom_text(aes(label=round(max_dislike_increment,0),hjust=ifelse(max_dislike_increment<max(temp$max_dislike_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_dislike_increment,function(x){return(ifelse(x<max(temp[1:25,]$max_dislike_increment)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$avg_comment_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,avg_comment_increment),y=avg_comment_increment))+geom_col()+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  ggtitle("top youtubers with highest average comment increment when trending")+
+  geom_text(aes(label=round(avg_comment_increment,0),hjust=ifelse(avg_comment_increment<max(temp$avg_comment_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$avg_comment_increment,function(x){return(ifelse(x<max(temp[1:25,]$avg_comment_increment)/1.5, "black","white"))})))
+
+temp<-data20[order(-data20$max_comment_increment,decreasing = F),]
+ggplot(data = temp[1:25,],mapping = aes(x=reorder(channel,max_comment_increment),y=max_comment_increment))+geom_col()+
+  ggtitle("top youtubers with highest singel video comment increment")+coord_flip()+xlab(element_blank())+ylab(element_blank())+
+  geom_text(aes(label=round(max_comment_increment,0),hjust=ifelse(max_comment_increment<max(temp$max_comment_increment)/1.5, -0.1, 1.1)),size=3,color=unlist(lapply(temp[1:25,]$max_comment_increment,function(x){return(ifelse(x<max(temp[1:25,]$max_comment_increment)/1.5, "black","white"))})))
 ```
 
 
