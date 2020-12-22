@@ -396,15 +396,14 @@ ggplot(data = data10[data10$day_until_trending>100,],aes(day_until_trending))+ge
   stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
 ggplot(data = data10,aes(like_rate))+geom_histogram()+
-  
   ggtitle("video like rate distribution")+
-  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+  stat_bin(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 ggplot(data = data10,aes(like_engage_rate))+geom_histogram()+
   ggtitle("percentage of like interaction distribution")+ 
-  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+  stat_bin(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 ggplot(data = data10,aes(comment_engage_rate))+geom_histogram()+
   ggtitle("percentage of comments interaction distribution")+
-  stat_count(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
+  stat_bin(geom = "text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
 ggplot(data = data10[data10$view_increment<=1000000,],aes(view_increment))+geom_histogram(bins=15)+
   ggtitle("average view increment when trending(<=1000000)")+ 
@@ -435,7 +434,7 @@ ggplot(data = data10[data10$comment_increment>1000,],aes(comment_increment))+geo
   stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
 
-ggplot(data = data10,aes(engagement_score))+geom_histogram(bins=15)+
+ggplot(data = data10,aes(log2(engagement_score)))+geom_histogram(bins=15)+
   ggtitle("engagement score distribution")+
   stat_bin(bins=15, geom="text", colour = "black", size = 3.5,aes(label = ..count..),vjust=-0.3)
 
