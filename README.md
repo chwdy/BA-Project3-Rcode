@@ -1,4 +1,5 @@
-# BA-Project3-Rcode
+# BA-Project3-Rcode- Youtube Trending Video Content Strategy 
+Used  R, Tableau, SQL
 
 ## Background:
 
