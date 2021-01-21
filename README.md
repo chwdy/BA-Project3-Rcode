@@ -1,6 +1,6 @@
 # BA-Project3-Rcode
 
-## Background
+## Background:
 
 This project is a course project of class 8413, instructed by professor J.C. Bonilla
 
